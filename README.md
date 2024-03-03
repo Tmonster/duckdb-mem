@@ -62,3 +62,59 @@ Running variants of the code in `setup.R`, by `run_setup.R`:
   responsible for the memory overhead.
 - Despite the limit of 10MB DuckDB memory in `setup-manual-limited.R`,
   the memory overhead is over 25MB.
+
+## `dbGetQuery()`
+
+Running variants of the code in `read`.R`, by`run_read.R\`:
+
+- duckdb: Baseline, `dbGetQuery()`
+- limited: With a duckdb memory limit of 10 MB
+- limited_20: With a duckdb memory limit of 20 MB
+- limited_collect: With a duckdb memory limit of 10 MB, using
+  `collect(n = n)`
+- limited_collect_from: With a duckdb memory limit of 10 MB, using
+  `tbl(con, "FROM data LIMIT ...") |> collect()`
+- limited: With a duckdb memory limit of 10 MB, using
+  `dbGetQuery(n = n)`
+
+![](README_files/figure-gfm/read-1.png)<!-- -->
+
+### Linear model
+
+    #> 
+    #> Call:
+    #> lm(formula = mem ~ workload, data = resident_size)
+    #> 
+    #> Coefficients:
+    #>                  (Intercept)               workloadlimited  
+    #>                      265.777                       -45.442  
+    #>           workloadlimited_20       workloadlimited_collect  
+    #>                      -44.973                        -5.962  
+    #> workloadlimited_collect_from             workloadlimited_n  
+    #>                      -40.098                        33.882
+
+### Overhead
+
+    #> # A tibble: 6 × 5
+    #>   workload             mem_min mem_max mem_delta overhead
+    #>   <chr>                  <dbl>   <dbl>     <dbl>    <dbl>
+    #> 1 limited                 197.    290.      92.9     1   
+    #> 2 limited_collect_from    198.    296.      97.7     1.05
+    #> 3 limited_20              193.    292.      98.4     1.06
+    #> 4 limited_n               269.    384.     115.      1.24
+    #> 5 duckdb                  194.    360.     166.      1.79
+    #> 6 limited_collect         204.    410.     206.      2.22
+
+### Conclusion
+
+- The size of the data is about 48 MB, so the memory overhead is about
+  twofold.
+- `collect(n = n)` is poison, with far worse overhead, only surpassed by
+  `dbGetQuery(n = n)` (which is very surprising).
+- `tbl(con, "FROM data LIMIT ...") |> collect()` is the best option for
+  a lazy table.
+- Action items:
+  - Understand double memory usage in `dbGetQuery()`
+  - Understand `dbGetQuery(n = n)`
+  - See if ALTREP or a different way of fetching partial results (e.g.,
+    in the C++ glue) can help
