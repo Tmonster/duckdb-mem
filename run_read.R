@@ -20,6 +20,9 @@ limited_collect_from <- tibble(n, out = out_limited_collect_from)
 out_limited_n <- map(n, .progress = TRUE, ~ system2("/usr/bin/time", c("-l", "Rscript", "read-limited-n.R", .x), stdout = TRUE, stderr = TRUE))
 limited_n <- tibble(n, out = out_limited_n)
 
+out_limited_arrow <- map(n, .progress = TRUE, ~ system2("/usr/bin/time", c("-l", "Rscript", "read-limited-arrow.R", .x), stdout = TRUE, stderr = TRUE))
+limited_arrow <- tibble(n, out = out_limited_arrow)
+
 out <- bind_rows(
   duckdb = duckdb,
   limited = limited,
@@ -27,6 +30,7 @@ out <- bind_rows(
   limited_collect = limited_collect,
   limited_collect_from = limited_collect_from,
   limited_n = limited_n,
+  limited_arrow = limited_arrow,
   .id = "workload"
 )
 

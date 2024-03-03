@@ -1,4 +1,5 @@
 library(duckdb)
+library(arrow)
 library(dbplyr)
 library(tidyverse)
 

@@ -88,22 +88,25 @@ Running variants of the code in `read`.R`, by`run_read.R\`:
     #> Coefficients:
     #>                  (Intercept)               workloadlimited  
     #>                      265.777                       -45.442  
-    #>           workloadlimited_20       workloadlimited_collect  
-    #>                      -44.973                        -5.962  
-    #> workloadlimited_collect_from             workloadlimited_n  
-    #>                      -40.098                        33.882
+    #>           workloadlimited_20         workloadlimited_arrow  
+    #>                      -44.973                        16.487  
+    #>      workloadlimited_collect  workloadlimited_collect_from  
+    #>                       -5.962                       -40.098  
+    #>            workloadlimited_n  
+    #>                       33.882
 
 ### Overhead
 
-    #> # A tibble: 6 × 5
+    #> # A tibble: 7 × 5
     #>   workload             mem_min mem_max mem_delta overhead
     #>   <chr>                  <dbl>   <dbl>     <dbl>    <dbl>
     #> 1 limited                 197.    290.      92.9     1   
-    #> 2 limited_collect_from    198.    296.      97.7     1.05
-    #> 3 limited_20              193.    292.      98.4     1.06
-    #> 4 limited_n               269.    384.     115.      1.24
-    #> 5 duckdb                  194.    360.     166.      1.79
-    #> 6 limited_collect         204.    410.     206.      2.22
+    #> 2 limited_arrow           254.    351.      96.5     1.04
+    #> 3 limited_collect_from    198.    296.      97.7     1.05
+    #> 4 limited_20              193.    292.      98.4     1.06
+    #> 5 limited_n               269.    384.     115.      1.24
+    #> 6 duckdb                  194.    360.     166.      1.79
+    #> 7 limited_collect         204.    410.     206.      2.22
 
 ### Conclusion
 

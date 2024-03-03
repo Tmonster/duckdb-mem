@@ -1,5 +1,6 @@
 library(duckdb)
 library(arrow)
+library(dbplyr)
 library(tidyverse)
 
 con <- dbConnect(duckdb(dbdir = "data.duckdb"))
@@ -14,7 +15,7 @@ if (length(args) > 0) {
   n <- 2^22
 }
 
-data <- dbGetQuery(con, paste0("SELECT * FROM data"), n = n)
+data <- tbl(con, sql(paste0("FROM data LIMIT ", n))) |> to_arrow() |> collect()
 saveRDS(data, "data.rds")
 
 dbDisconnect(con)
