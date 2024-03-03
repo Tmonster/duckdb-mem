@@ -2,6 +2,7 @@ library(duckdb)
 
 unlink("data.duckdb")
 con <- dbConnect(duckdb(dbdir = "data.duckdb"))
+dbExecute(con, paste0("PRAGMA temp_directory='", tempdir(), "'"))
 
 args <- commandArgs(TRUE)
 if (length(args) > 0) {

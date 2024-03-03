@@ -32,33 +32,33 @@ Running variants of the code in `setup.R`, by `run_setup.R`:
     #> 
     #> Coefficients:
     #>            (Intercept)         workloadlimited      workloadlimited_20  
-    #>                140.243                  -2.672                  -1.467  
+    #>                141.308                  -3.578                  -2.989  
     #>         workloadmanual  workloadmanual_limited               workloadr  
-    #>                 -1.402                  -6.752                 -17.676  
+    #>                 -2.750                  -7.194                 -20.835  
     #>       workloadregister  
-    #>                -16.152
+    #>                -15.502
 
 ### Overhead
 
     #> # A tibble: 7 × 5
     #>   workload       mem_min mem_max mem_delta overhead
     #>   <chr>            <dbl>   <dbl>     <dbl>    <dbl>
-    #> 1 r                 113.    151.      37.9     1   
-    #> 2 register          113     156.      42.5     1.12
-    #> 3 manual_limited    115.    173.      58.5     1.54
-    #> 4 limited           117.    179.      61.6     1.63
-    #> 5 limited_20        117.    186.      68.2     1.80
-    #> 6 duckdb            117.    200.      82.5     2.18
-    #> 7 manual            115.    200.      84.9     2.24
+    #> 1 r                 111.    144.      33.2     1   
+    #> 2 register          113.    163.      49.5     1.49
+    #> 3 manual_limited    114.    179.      65.5     1.97
+    #> 4 limited           115.    183.      67.5     2.03
+    #> 5 limited_20        116.    185.      68.5     2.06
+    #> 6 manual            114.    196.      81.6     2.46
+    #> 7 duckdb            116.    205.      89.6     2.70
 
 ### Conclusion
 
 - Registering the data frame consumes a bit of memory, but not that
   much.
-- The `setup-manual.R` script is equovalent to `setup.R` in terms of
+- The `setup-manual.R` script is equivalent to `setup.R` in terms of
   memory usage, but uses functions at a lower level compared to
   `dbWriteTable()`.
 - The `CREATE TABLE` statement in `setup-manual.R` seems to be
   responsible for the memory overhead.
 - Despite the limit of 10MB DuckDB memory in `setup-manual-limited.R`,
-  the memory overhead is 25MB.
+  the memory overhead is over 25MB.

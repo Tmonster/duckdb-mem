@@ -77,6 +77,6 @@ left_join(min, max, join_by(workload)) |>
 ### Conclusion
 
 - Registering the data frame consumes a bit of memory, but not that much.
-- The `setup-manual.R` script is equovalent to `setup.R` in terms of memory usage, but uses functions at a lower level compared to `dbWriteTable()`.
+- The `setup-manual.R` script is equivalent to `setup.R` in terms of memory usage, but uses functions at a lower level compared to `dbWriteTable()`.
 - The `CREATE TABLE` statement in `setup-manual.R` seems to be responsible for the memory overhead.
-- Despite the limit of 10MB DuckDB memory in `setup-manual-limited.R`, the memory overhead is 25MB.
+- Despite the limit of 10MB DuckDB memory in `setup-manual-limited.R`, the memory overhead is over 25MB.
