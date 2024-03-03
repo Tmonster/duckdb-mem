@@ -1,2 +1,3 @@
-/setup.rds
+/*.rds
+/*.duckdb
 .Rproj.user

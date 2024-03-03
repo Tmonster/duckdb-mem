@@ -1,0 +1,82 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library(tidyverse)
+```
+
+# duckdb-mem
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of duckdb-mem is to analyze the memory usage of DuckDB.
+
+## `dbWriteTable()`
+
+Running variants of the code in `setup.R`, by `run_setup.R`:
+
+- duckdb: Baseline
+- r: Without `dbWriteTable()`
+- limited: With a duckdb memory limit of 10 MB
+- limited_20: With a duckdb memory limit of 20 MB
+- register: With `duckdb_register()` instead of `dbWriteTable()`
+- manual: With `duckdb_register()` and `CREATE TABLE` instead of `dbWriteTable()`
+- manual_limited: With `duckdb_register()`, `CREATE TABLE`, and a duckdb memory limit of 10 MB
+
+```{r echo = FALSE, message = FALSE}
+setup <- readRDS("setup.rds")
+
+resident_size <-
+  setup |>
+  mutate(res = map_chr(out, ~ grep("resident", .x, value = TRUE))) |>
+  mutate(mem = map_dbl(res, ~ as.numeric(str_extract(.x, "\\d+")) / 2^20))
+
+ggplot(resident_size, aes(x = n, y = mem, color = workload)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Resident memory usage",
+       x = "Number of rows",
+       y = "Resident memory (MB)") +
+  theme_minimal()
+```
+
+### Linear model
+
+```{r echo = FALSE}
+lm(mem ~ workload, data = resident_size)
+```
+
+### Overhead
+
+```{r echo = FALSE}
+max <-
+  resident_size |>
+  filter(.by = workload, n == max(n)) |>
+  select(workload, mem_max = mem)
+
+min <-
+  resident_size |>
+  filter(.by = workload, n == min(n)) |>
+  select(workload, mem_min = mem)
+
+left_join(min, max, join_by(workload)) |>
+  mutate(mem_delta = mem_max - mem_min) |>
+  arrange(mem_delta) |>
+  mutate(overhead = mem_delta / mem_delta[[1]])
+```
+
+### Conclusion
+
+- Registering the data frame consumes a bit of memory, but not that much.
+- The `setup-manual.R` script is equovalent to `setup.R` in terms of memory usage, but uses functions at a lower level compared to `dbWriteTable()`.
+- The `CREATE TABLE` statement in `setup-manual.R` seems to be responsible for the memory overhead.
+- Despite the limit of 10MB DuckDB memory in `setup-manual-limited.R`, the memory overhead is 25MB.

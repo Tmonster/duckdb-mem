@@ -12,6 +12,8 @@ if (length(args) > 0) {
 
 data <- data.frame(id = seq_len(n), x = rnorm(n))
 
-dbWriteTable(con, "data", data, overwrite = TRUE)
+duckdb_register(con, "temp", data)
+
+dbExecute(con, "CREATE TABLE data AS SELECT * FROM temp")
 
 dbDisconnect(con)
