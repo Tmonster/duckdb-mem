@@ -27,30 +27,27 @@ Running variants of the code in `setup.R`, by `run_setup.R`:
 These numbers are most likely no longer accurate, as the memory measurement method may have changed 
 i.e `time -l` vs. `time -v` with pipes to grep maximum resident set size.
 ```
-#> 
-#> Call:
-#> lm(formula = mem ~ workload, data = resident_size)
-#> 
-#> Coefficients:
-#>            (Intercept)         workloadlimited      workloadlimited_20  
-#>                141.308                  -3.578                  -2.989  
-#>         workloadmanual  workloadmanual_limited               workloadr  
-#>                 -2.750                  -7.194                 -20.835  
-#>       workloadregister  
-#>                -15.502
+Call:
+lm(formula = mem ~ n + workload, data = resident_size)
 
+Coefficients:
+           (Intercept)                       n         workloadlimited
+             9.333e+02               1.394e-05              -6.589e+02
+    workloadlimited_20          workloadmanual  workloadmanual_limited
+            -3.422e+02              -5.521e+00              -6.615e+02
+             workloadr        workloadregister
+            -1.959e+03              -1.287e+03
 
 # A tibble: 7 × 5
   workload       mem_min mem_max mem_delta overhead
   <chr>            <dbl>   <dbl>     <dbl>    <dbl>
-1 r                 214.   2134.     1920.     1
-2 register          278.   3158.     2880.     1.50
-3 limited           405.   4595.     4190.     2.18
-4 manual            402.   5103.     4702.     2.45
-5 manual_limited    402.   5109.     4707.     2.45
-6 duckdb            404.   5114.     4710.     2.45
-7 limited_20        407.   5118.     4710.     2.45
-
+1 r                 214.   4182.     3968      1
+2 register          278.   6230.     5952.     1.50
+3 manual_limited    402.   7222.     6821.     1.72
+4 limited           403.   7226.     6823.     1.72
+5 limited_20        403.   8182.     7778.     1.96
+6 manual            400.  10134.     9734.     2.45
+7 duckdb            405.  10146.     9741.     2.45
 ```
 ### Conclusion
 
