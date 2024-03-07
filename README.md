@@ -13,84 +13,56 @@ The goal of duckdb-mem is to analyze the memory usage of DuckDB.
 Running variants of the code in `setup.R`, by `run_setup.R`:
 
 - duckdb: Baseline
-- r: Without `dbWriteTable()`, measures size of dataframe in memory
-- limited: With a duckdb memory limit of 3 GB
-- limited_20: With a duckdb memory limit of 6 GB
-- register: With `duckdb_register()` instead of `dbWriteTable()`
+- r: Without `dbWriteTable()`, measures size of dataframe in memory (about 2.2 for the largest df)
+- limited: With a duckdb memory limit of 1.5 GB
+- limited_20: With a duckdb memory limit of 3 GB
+- register: With `duckdb_register()` instead of `dbWriteTable()` : no memory limit
 - manual: With `duckdb_register()` and `CREATE TABLE` instead of
-  `dbWriteTable()`
+  `dbWriteTable()` : no memory limit
 - manual_limited: With `duckdb_register()`, `CREATE TABLE`, and a duckdb
-  memory limit of 10 MB
+  memory limit of 1.5 GB
 
 ![](Rplots.pdf)<!-- -->
 
+These numbers are most likely no longer accurate, as the memory measurement method may have changed 
+i.e `time -l` vs. `time -v` with pipes to grep maximum resident set size.
+```
+#> 
+#> Call:
+#> lm(formula = mem ~ workload, data = resident_size)
+#> 
+#> Coefficients:
+#>            (Intercept)         workloadlimited      workloadlimited_20  
+#>                141.308                  -3.578                  -2.989  
+#>         workloadmanual  workloadmanual_limited               workloadr  
+#>                 -2.750                  -7.194                 -20.835  
+#>       workloadregister  
+#>                -15.502
+
+
+# A tibble: 7 × 5
+  workload       mem_min mem_max mem_delta overhead
+  <chr>            <dbl>   <dbl>     <dbl>    <dbl>
+1 r                 214.   2134.     1920.     1
+2 register          278.   3158.     2880.     1.50
+3 limited           405.   4595.     4190.     2.18
+4 manual            402.   5103.     4702.     2.45
+5 manual_limited    402.   5109.     4707.     2.45
+6 duckdb            404.   5114.     4710.     2.45
+7 limited_20        407.   5118.     4710.     2.45
+
+```
 ### Conclusion
 
 - Registering the data frame consumes a bit of memory, but not that
   much.
 - The `setup-manual.R` script is equivalent to `setup.R` in terms of
   memory usage, but uses functions at a lower level compared to
-  `dbWriteTable()`. 
+  `dbWriteTable()`.
 - The `CREATE TABLE` statement in `setup-manual.R` seems to be
   responsible for the memory overhead.
-- Despite the limit of 3GB DuckDB memory in `setup-manual-limited.R`,
-  the memory overhead is over 5GB. This is more than the 33GB
+- Despite the limit of 1.5GB DuckDB memory in `setup-manual-limited.R`,
+  the memory overhead is over 2GB.
 
-## `dbGetQuery()`
 
-Running variants of the code in `read`.R`, by`run_read.R\`:
 
-- duckdb: Baseline, `dbGetQuery()`
-- limited: With a duckdb memory limit of 10 MB
-- limited_20: With a duckdb memory limit of 20 MB
-- limited_collect: With a duckdb memory limit of 10 MB, using
-  `collect(n = n)`
-- limited_collect_from: With a duckdb memory limit of 10 MB, using
-  `tbl(con, "FROM data LIMIT ...") |> collect()`
-- limited: With a duckdb memory limit of 10 MB, using
-  `dbGetQuery(n = n)`
-
-![](README_files/figure-gfm/read-1.png)<!-- -->
-
-### Linear model
-
-    #> 
-    #> Call:
-    #> lm(formula = mem ~ workload, data = resident_size)
-    #> 
-    #> Coefficients:
-    #>                  (Intercept)               workloadlimited  
-    #>                      265.777                       -45.442  
-    #>           workloadlimited_20         workloadlimited_arrow  
-    #>                      -44.973                        16.487  
-    #>      workloadlimited_collect  workloadlimited_collect_from  
-    #>                       -5.962                       -40.098  
-    #>            workloadlimited_n  
-    #>                       33.882
-
-### Overhead
-
-    #> # A tibble: 7 × 5
-    #>   workload             mem_min mem_max mem_delta overhead
-    #>   <chr>                  <dbl>   <dbl>     <dbl>    <dbl>
-    #> 1 limited                 197.    290.      92.9     1   
-    #> 2 limited_arrow           254.    351.      96.5     1.04
-    #> 3 limited_collect_from    198.    296.      97.7     1.05
-    #> 4 limited_20              193.    292.      98.4     1.06
-    #> 5 limited_n               269.    384.     115.      1.24
-    #> 6 duckdb                  194.    360.     166.      1.79
-    #> 7 limited_collect         204.    410.     206.      2.22
-
-### Conclusion
-
-- The size of the data is about 48 MB, so the memory overhead is about
-  twofold.
-- `collect(n = n)` is poison, with far worse overhead, only surpassed by
-  `dbGetQuery(n = n)` (which is very surprising).
-- `tbl(con, "FROM data LIMIT ...") |> collect()` is the best option for
-  a lazy table.
-- Action items:
-  - Understand double memory usage in `dbGetQuery()`
-  - Understand `dbGetQuery(n = n)`
-  - See if ALTREP or a different way of fetching partial results (e.g.,
-    in the C++ glue) can help
