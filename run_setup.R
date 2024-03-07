@@ -1,6 +1,6 @@
 library(tidyverse)
 
-n <- 2^(24:28)
+n <- 2^(24:29)
 # 2^28 peaks at 2.3-2.5 GB in memory
 
 out_duckdb <- map(n, .progress = TRUE, ~ system2("/usr/bin/time", c("-v", "Rscript", "setup.R", .x, "2>&1", ">/dev/null", "|", "grep", "Maximum"), stdout = TRUE, stderr = FALSE))
