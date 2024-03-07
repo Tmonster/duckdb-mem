@@ -5,7 +5,7 @@ setup <- readRDS("setup.rds")
 resident_size <-
   setup |>
   mutate(res = map_chr(out, ~ grep("resident", .x, value = TRUE))) |>
-  mutate(mem = map_dbl(res, ~ as.numeric(str_extract(.x, "\\d+")) / 2^20))
+  mutate(mem = map_dbl(res, ~ as.numeric(str_extract(.x, "\\d+")) / 2 ^ 10))
 
 ggplot(resident_size, aes(x = n, y = mem, color = workload)) +
   geom_point() +
