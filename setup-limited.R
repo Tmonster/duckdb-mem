@@ -5,7 +5,7 @@ con <- dbConnect(duckdb(dbdir = "data.duckdb"))
 dbExecute(con, paste0("PRAGMA temp_directory='", tempdir(), "'"))
 
 dbExecute(con, "PRAGMA memory_limit='1GB'")
-dbExecute(con, "PRAGMA threads=8")
+dbExecute(con, "PRAGMA threads=1")
 
 args <- commandArgs(TRUE)
 if (length(args) > 0) {
