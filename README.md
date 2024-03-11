@@ -8,6 +8,8 @@
 
 The goal of duckdb-mem is to analyze the memory usage of DuckDB.
 
+The following tests are run on a c6id.4xlarge (16 cores, 32 GB of memory.)
+
 ## `dbWriteTable()`
 
 Running variants of the code in `setup.R`, by `run_setup.R`:
@@ -19,47 +21,35 @@ Running variants of the code in `setup.R`, by `run_setup.R`:
 - register: With `duckdb_register()` instead of `dbWriteTable()` : no memory limit
 - manual: With `duckdb_register()` and `CREATE TABLE` instead of
   `dbWriteTable()` : no memory limit
-- manual_limited: With `duckdb_register()`, `CREATE TABLE`, and a duckdb
-  memory limit of 1.5 GB
+- manual_limited: With `duckdb_register()`, `CREATE TABLE`, and a duckdb memory limit of 1.5 GB
 
-![](Rplots.pdf)<!-- -->
+- 16 duckdb threads active
 
-These numbers are most likely no longer accurate, as the memory measurement method may have changed 
-i.e `time -l` vs. `time -v` with pipes to grep maximum resident set size.
-```
-Call:
-lm(formula = mem ~ n + workload, data = resident_size)
+![](Rplots-no-thread-limit.pdf)<!-- -->
 
-Coefficients:
-           (Intercept)                       n         workloadlimited
-             9.333e+02               1.394e-05              -6.589e+02
-    workloadlimited_20          workloadmanual  workloadmanual_limited
-            -3.422e+02              -5.521e+00              -6.615e+02
-             workloadr        workloadregister
-            -1.959e+03              -1.287e+03
+Modification 
+- limited: With a duckdb memory limit of 1 GB
+- limited_20: With a duckdb memory limit of 2 GB
+- 8 duckdb threads active
 
-# A tibble: 7 × 5
-  workload       mem_min mem_max mem_delta overhead
-  <chr>            <dbl>   <dbl>     <dbl>    <dbl>
-1 r                 214.   4182.     3968      1
-2 register          278.   6230.     5952.     1.50
-3 manual_limited    402.   7222.     6821.     1.72
-4 limited           403.   7226.     6823.     1.72
-5 limited_20        403.   8182.     7778.     1.96
-6 manual            400.  10134.     9734.     2.45
-7 duckdb            405.  10146.     9741.     2.45
-```
+
+![](Rplots-thread-limiting.pdf)
+
+Modification 
+- limited: With a duckdb memory limit of 500 MB
+- limited_20: With a duckdb memory limit of 1 GB
+- Only 1 duckdb thread active
+
+![](Rplots-1-thread-low-mem.pdf)
+
+
 ### Conclusion
 
-- Registering the data frame consumes a bit of memory, but not that
-  much.
-- The `setup-manual.R` script is equivalent to `setup.R` in terms of
-  memory usage, but uses functions at a lower level compared to
-  `dbWriteTable()`.
-- The `CREATE TABLE` statement in `setup-manual.R` seems to be
-  responsible for the memory overhead.
-- Despite the limit of 1.5GB DuckDB memory in `setup-manual-limited.R`,
-  the memory overhead is over 2GB.
+- Registering the data frame consumes a bit of memory, **more than the memory limit**.
+- Registering the dataframe has the highest overhead when duckdb has a constrained memory limit. 
+- When copying the dataframe, the memory limit is respected compared to the memory in use when registering.
+- manual and duckdb are equivalent (hard to see unless you zoom in)
+
 
 
 
