@@ -25,7 +25,7 @@ Running variants of the code in `setup.R`, by `run_setup.R`:
 
 - 16 duckdb threads active
 
-![](Rplots-no-thread-limit.pdf)<!-- -->
+![](README_files/Rplots-no-thread-limit.png)<!-- -->
 
 Modification 
 - limited: With a duckdb memory limit of 1 GB
@@ -33,14 +33,14 @@ Modification
 - 8 duckdb threads active
 
 
-![](Rplots-thread-limiting.pdf)
+![](README_files/Rplots-thread-limiting.png)
 
 Modification 
 - limited: With a duckdb memory limit of 500 MB
 - limited_20: With a duckdb memory limit of 1 GB
 - Only 1 duckdb thread active
 
-![](Rplots-1-thread-low-mem.pdf)
+![](README_files/Rplots-1-thread-low-mem.png)
 
 
 ### Conclusion
